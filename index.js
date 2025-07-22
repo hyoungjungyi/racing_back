@@ -16,12 +16,15 @@ wss.on('connection', function connection(ws) {
     }
 
     const { type, roomId, playerId, ...rest } = data;
+    console.log("파싱된 메시지 전체:", data);
+
 
     switch (type) {
     
 
-      case "join_room": {
-        const { character, vehicle, userId } = rest;
+      case "ready": {
+        const { userId, vehicle } = rest;
+        console.log("[READY] roomId:", roomId, "userId:", userId, "vehicle:", vehicle);
 
         if (!rooms.has(roomId)) {
             // 방이 없으면 새로 만든다 (자동 생성)
@@ -34,11 +37,11 @@ wss.on('connection', function connection(ws) {
         if (!room.student) {
             role = "student";
             playerId = 1;
-            room.student = { ws, playerId, character, vehicle, userId };
+            room.student = { ws, playerId,vehicle, userId };
         } else if (!room.police) {
             role = "police";
             playerId = 2;
-            room.police = { ws, playerId, character, vehicle, userId };
+            room.police = { ws, playerId, vehicle, userId };
         } else {
             // 이미 꽉 찬 경우
             ws.send(JSON.stringify({ type: "error", message: "역할이 이미 찼습니다." }));
@@ -50,7 +53,6 @@ wss.on('connection', function connection(ws) {
         // 클라이언트에 역할 통보
         ws.send(JSON.stringify({
             type: "player_joined",
-            roomId,
             playerId,
             role
         }));
@@ -63,13 +65,11 @@ wss.on('connection', function connection(ws) {
                 players: [
                     {
                         playerId: room.student.playerId,
-                        character: room.student.character,
                         vehicle: room.student.vehicle,
                         role: "student"
                     },
                     {
                         playerId: room.police.playerId,
-                        character: room.police.character,
                         vehicle: room.police.vehicle,
                         role: "police"
                     }
