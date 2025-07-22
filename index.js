@@ -95,13 +95,13 @@ wss.on('connection', function connection(ws) {
 
 
       case 'player_state': { 
-        const { x, y, z, velocity, turn } = rest;
+       const { x, y, z, velocity, turn } = rest;
         broadcastExceptSender(ws, {
             type: 'player_state',
             playerId,
-            x, y, z, velocity, turn
+            x, y, z, turn
         });
-        break;
+        break; 
         }
 
 
